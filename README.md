@@ -19,9 +19,9 @@
   
 
 ## Инструкция по запуску
-
-## Испоьзование
-
+in progress...
+## Использование
+in progress...
 
 ## Полезные ссылки
 + [Яндекс Трекер](https://tracker.yandex.ru/pages/projects/1)
