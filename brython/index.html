@@ -1,18 +1,111 @@
 <!doctype html>
 <html>
-
 <head>
-<meta charset="utf-8">
-<script type="text/javascript" src="brython.js"></script>
-<script type="text/javascript" src="brython_stdlib.js"></script>
+    <meta charset="utf-8">
+    <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/brython@3.8.8/brython.min.js">
+    </script>
+<style>
+        body {
+            font-family: PT Sans;
+            background-color: #f4f4f4;
+            padding: 20px;
+            background: #FDF6F7;
+        }
+        .container {
+            margin-top: 20px;
+            padding: 15px;
+        }
+        .weather-info {
+            font-size: 15px;
+            text-align: left;
+            margin-top: 10px;
+            font-weight: regular;
+        }
+        .date-info {
+            text-align: left;
+            color: #00457E;
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 
-<body>
-<script type="text/python">
-from browser import document
+<body onload="brython()">
+    <div class="container">
+        <div id="date" class="date-info"></div>
+        <div class="weather-info">
+            <p>
+                <svg width="12" height="22" viewBox="0 0 9 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4.5 18C6.97826 18 9 16.2724 9 14.1548C9 12.9288 8.34783 11.8142 7.20652 11.0898V2.31269C7.20652 1.69969 6.91304 1.11455 6.42391 0.66873C5.90217 0.22291 5.21739 0 4.5 0C3 0 1.79348 1.03096 1.79348 2.31269V11.0898C0.684783 11.8142 0 12.9288 0 14.1548C0 16.2724 2.02174 18 4.5 18ZM2.80435 11.87L3.09783 11.7028V8.49845H4.5V7.3839H3.09783V6.88235H4.5V5.7678H3.09783V5.26625H4.5V4.1517H3.09783V3.65015H4.5V2.5356H3.09783V2.31269C3.09783 1.64396 3.71739 1.11455 4.5 1.11455C4.8587 1.11455 5.21739 1.22601 5.47826 1.47678C5.73913 1.69969 5.90217 2.00619 5.90217 2.31269V11.6749L6.19565 11.8421C7.1087 12.3437 7.66304 13.2074 7.66304 14.1269C7.66304 15.6316 6.22826 16.8576 4.46739 16.8576C2.70652 16.8576 1.27174 15.6316 1.27174 14.1269C1.30435 13.2074 1.8587 12.3715 2.80435 11.87Z" fill="black"/>
+                    <path d="M4.50001 16.4118C5.9674 16.4118 7.14131 15.4087 7.14131 14.1548C7.14131 13.096 6.29349 12.2322 5.15218 11.9814V9.72446H3.84783V11.9814C2.70653 12.2322 1.8587 13.1238 1.8587 14.1548C1.8587 15.4087 3.03262 16.4118 4.50001 16.4118ZM4.50001 13.0124C5.25001 13.0124 5.83696 13.5139 5.83696 14.1548C5.83696 14.7957 5.25001 15.2972 4.50001 15.2972C3.75001 15.2972 3.16305 14.7957 3.16305 14.1548C3.16305 13.5139 3.75001 13.0124 4.50001 13.0124Z" fill="black"/>
+                </svg>
+                <span style="vertical-align: top; margin-left: 10px" id="temperature">... </span></p>
+            <p>
+                <svg width="22" height="22" viewBox="4 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 21.5C16.1012 21.5 19.5 18.4372 19.5 14.5714C19.5 12.1555 18.2672 9.71249 16.8732 7.70906C15.4698 5.69214 13.8515 4.04821 12.9778 3.21778C12.4263 2.69364 11.5737 2.69364 11.0222 3.21779C10.1485 4.04821 8.53016 5.69214 7.1268 7.70906C5.73282 9.71249 4.5 12.1555 4.5 14.5714C4.5 18.4372 7.8988 21.5 12 21.5Z" stroke="#222222"/>
+                    <path d="M12 18C11.4747 18 10.9546 17.8965 10.4693 17.6955C9.98396 17.4945 9.54301 17.1999 9.17157 16.8284C8.80014 16.457 8.5055 16.016 8.30448 15.5307C8.10346 15.0454 8 14.5253 8 14" stroke="#222222" stroke-linecap="round"/>
+                </svg>
+                <span style="vertical-align: top" id="humidity">  ... </span></p>
+            <p>
+                <svg width="22" height="22" viewBox="2 2 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20.6933 17.3294C21.0506 15.9959 21.0964 14.5982 20.8271 13.2442C20.5577 11.8902 19.9806 10.6164 19.1402 9.52115C18.2998 8.42593 17.2187 7.53872 15.9806 6.92815C14.7425 6.31757 13.3805 6 12 6C10.6195 6 9.25752 6.31757 8.0194 6.92815C6.78128 7.53872 5.70021 8.42593 4.85982 9.52115C4.01943 10.6164 3.44225 11.8902 3.17293 13.2442C2.90361 14.5982 2.94937 15.9959 3.30667 17.3294" stroke="#222222" stroke-linecap="round"/>
+                    <path d="M12.7657 15.5823C13.2532 16.2916 12.9104 17.3738 12 17.9994C11.0897 18.625 9.95652 18.5571 9.46906 17.8477C8.94955 17.0917 7.15616 12.8409 6.06713 10.2114C5.86203 9.71621 6.4677 9.3 6.85648 9.669C8.92077 11.6283 12.2462 14.8263 12.7657 15.5823Z" stroke="#222222"/>
+                    <path d="M12 6V8" stroke="#222222" stroke-linecap="round"/>
+                    <path d="M5.63599 8.63574L7.0502 10.05" stroke="#222222" stroke-linecap="round"/>
+                    <path d="M18.364 8.63574L16.9498 10.05" stroke="#222222" stroke-linecap="round"/>
+                    <path d="M20.6934 17.3291L18.7615 16.8115" stroke="#222222" stroke-linecap="round"/>
+                    <path d="M3.30664 17.3291L5.23849 16.8115" stroke="#222222" stroke-linecap="round"/>
+                </svg>
+                <span style="vertical-align: top" id="pressure">...</span> </p>
+        </div>
+    </div>
 
-document <= "Hello"
-</script>
+    <script type="text/python">
+        from browser import document, window
+
+        last_weather_update = None
+        last_time_update = None
+
+        def get_current_time():
+            """get current date"""
+            js_date = window.Date.new()
+            day = int(js_date.getDate())
+            month = int(js_date.getMonth())
+            year = int(js_date.getFullYear())
+            hours = int(js_date.getHours())
+            minutes = int(js_date.getMinutes())
+            weekday = int(js_date.getDay())
+
+            days = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"]
+            months = ["января", "февраля", "марта", "апреля", "мая", "июня",
+                      "июля", "августа", "сентября", "октября", "ноября", "декабря"]
+
+            return f"{days[weekday]}, {day} {months[month]} {year}, {hours:02}:{minutes:02}", js_date.getTime()
+
+        def update_datetime():
+            global last_time_update
+            current_time, timestamp = get_current_time()
+            if last_time_update is None or (timestamp - last_time_update) >= 60000:
+                document["date"].text = current_time
+                last_time_update = timestamp
+
+        def update_weather():
+            """get current data from the server (temperature, pressure, humidity)"""
+            """TO DO request""""
+            temperature = "22°C"
+            humidity = "55%"
+            pressure = "748 мм рт. ст."
+
+            document["temperature"].text = temperature
+            document["humidity"].text = humidity
+            document["pressure"].text = pressure
+
+        update_datetime()
+        window.setInterval(update_datetime, 60000)
+
+        window.setTimeout(update_weather, 2000)
+    </script>
+
 </body>
-
 </html>
