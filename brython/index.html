@@ -220,15 +220,125 @@
 
         window.setTimeout(update_weather, 2000)
 
+        # delete useless svg in graph
+        def remove_unused_svg_elements(svg):
+            ids_to_remove = ["id0", "id71", "id108", "id111", "id204", "id207", "id227", "id230"]
+
+            for suffix in ids_to_remove:
+                element_id = f"{svg.id}_{suffix}"
+                if element_id in document:
+                    document[element_id].remove()
+
+        # create graph
+        def create_graph(type):
+            variants = [" ", " ", "", ""]
+            r_vals =[2.5, 3.7, 3.6, 5.4] # R-values for the 4 variants UK.2.5 , Brazil:3.7, SouthAfrica: 3.6, India 5.4
+            generations = 24  #How many generations to Calculate/ plot
+            temperatures = []
+            if type == "temp":
+                temperatures = [16, 18, 14, 14, 15, 18, 18, 19, 16, 15, 20, 16, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15]
+            elif type == "hum":
+                temperatures = [20, 34, 13, 14, 15, 18, 18, 19, 16, 15, 20, 16, 15, 15, 15, 45, 57, 18, 14, 15, 15, 15, 15, 15]
+            elif type == "press":
+                temperatures = [23, 14, 13, 14, 15, 18, 18, 19, 16, 15, 20, 16, 15, 15, 15, 45, 57, 18, 14, 15, 15, 15, 15, 15]
+
+            sample_data = {}
+            for variant, r_val in zip(variants, r_vals):
+                sample_data[variant] = []
+                for gen in range(generations): # change to change no of generations to view
+                    sample_data[variant].append((gen, temperatures[gen-1]))
+
+            pdd = brycharts.PairedDataDict("", "", sample_data)
+
+            title = f"Cov-19 Variants spread-Raw R-Value ({generations} Generations)"
+            document["container-0"].clear()
+            graph = brycharts.LineGraph(document["container-0"], pdd, title, height="70vh")
+
+
+            hours = [f"{h:02}:00" for h in range(24)]
+
+
+            table = document["temperature-table"]
+
+            time_row = html.TR()
+            for hour in hours:
+                time_row <= html.TH(hour)
+            temp_row = html.TR()
+            big_icon = ""
+            for temp in temperatures:
+                if type == "temp":
+                    temp_row <= html.TD(f"{temp}°C")
+
+                    big_icon = html.SVG(
+                        width="12", height="22", viewBox="0 0 9 18", fill="none",
+                        xmlns="http://www.w3.org/2000/svg"
+                    )
+
+                    big_icon.innerHTML = '''<path d=" M4.5 18C6.97826 18 9 16.2724 9 14.1548C9 12.9288 8.34783 11.8142 7.20652 11.0898V2.31269C7.20652 1.69969 6.91304 1.11455 6.42391 0.66873C5.90217 0.22291 5.21739 0 4.5 0C3 0 1.79348 1.03096 1.79348 2.31269V11.0898C0.684783 11.8142 0 12.9288 0 14.1548C0 16.2724 2.02174 18 4.5 18ZM2.80435 11.87L3.09783 11.7028V8.49845H4.5V7.3839H3.09783V6.88235H4.5V5.7678H3.09783V5.26625H4.5V4.1517H3.09783V3.65015H4.5V2.5356H3.09783V2.31269C3.09783 1.64396 3.71739 1.11455 4.5 1.11455C4.8587 1.11455 5.21739 1.22601 5.47826 1.47678C5.73913 1.69969 5.90217 2.00619 5.90217 2.31269V11.6749L6.19565 11.8421C7.1087 12.3437 7.66304 13.2074 7.66304 14.1269C7.66304 15.6316 6.22826 16.8576 4.46739 16.8576C2.70652 16.8576 1.27174 15.6316 1.27174 14.1269C1.30435 13.2074 1.8587 12.3715 2.80435 11.87Z" fill="white" />
+                        path d="M4.50001 16.4118C5.9674 16.4118 7.14131 15.4087 7.14131 14.1548C7.14131 13.096 6.29349 12.2322 5.15218 11.9814V9.72446H3.84783V11.9814C2.70653 12.2322 1.8587 13.1238 1.8587 14.1548C1.8587 15.4087 3.03262 16.4118 4.50001 16.4118ZM4.50001 13.0124C5.25001 13.0124 5.83696 13.5139 5.83696 14.1548C5.83696 14.7957 5.25001 15.2972 4.50001 15.2972C3.75001 15.2972 3.16305 14.7957 3.16305 14.1548C3.16305 13.5139 3.75001 13.0124 4.50001 13.0124Z" fill="white"/> '''
+
+                elif type == "hum":
+                     temp_row <= html.TD(f"{temp}%")
+                     big_icon = html.SVG(
+                         width="22", height="22", viewBox="4 0 22 22",
+                         fill="none", xmlns="http://www.w3.org/2000/svg"
+                     )
+
+                     big_icon.innerHTML = '''<path d="M12 21.5C16.1012 21.5 19.5 18.4372 19.5 14.5714C19.5 12.1555 18.2672 9.71249 16.8732 7.70906C15.4698 5.69214 13.8515 4.04821 12.9778 3.21778C12.4263 2.69364 11.5737 2.69364 11.0222 3.21779C10.1485 4.04821 8.53016 5.69214 7.1268 7.70906C5.73282 9.71249 4.5 12.1555 4.5 14.5714C4.5 18.4372 7.8988 21.5 12 21.5Z" stroke="#ffffff"/>
+                        <path d="M12 18C11.4747 18 10.9546 17.8965 10.4693 17.6955C9.98396 17.4945 9.54301 17.1999 9.17157 16.8284C8.80014 16.457 8.5055 16.016 8.30448 15.5307C8.10346 15.0454 8 14.5253 8 14" stroke="#ffffff" stroke-linecap="round"/> '''
+
+                elif type == "press":
+                     temp_row <= html.TD(f"{temp}")
+                     big_icon = html.SVG(
+                        width="22", height="22", viewBox="2 2 22 22", fill="none",
+                        xmlns="http://www.w3.org/2000/svg"
+                     )
+
+                     big_icon.innerHTML = '''<path d="M20.6933 17.3294C21.0506 15.9959 21.0964 14.5982 20.8271 13.2442C20.5577 11.8902 19.9806 10.6164 19.1402 9.52115C18.2998 8.42593 17.2187 7.53872 15.9806 6.92815C14.7425 6.31757 13.3805 6 12 6C10.6195 6 9.25752 6.31757 8.0194 6.92815C6.78128 7.53872 5.70021 8.42593 4.85982 9.52115C4.01943 10.6164 3.44225 11.8902 3.17293 13.2442C2.90361 14.5982 2.94937 15.9959 3.30667 17.3294" stroke="#ffffff" stroke-linecap="round"/>
+                        <path d="M12.7657 15.5823C13.2532 16.2916 12.9104 17.3738 12 17.9994C11.0897 18.625 9.95652 18.5571 9.46906 17.8477C8.94955 17.0917 7.15616 12.8409 6.06713 10.2114C5.86203 9.71621 6.4677 9.3 6.85648 9.669C8.92077 11.6283 12.2462 14.8263 12.7657 15.5823Z" stroke="#ffffff"/>
+                        <path d="M12 6V8" stroke="#ffffff" stroke-linecap="round"/>
+                        <path d="M5.63599 8.63574L7.0502 10.05" stroke="#ffffff" stroke-linecap="round"/>
+                        <path d="M18.364 8.63574L16.9498 10.05" stroke="#ffffff" stroke-linecap="round"/>
+                        <path d="M20.6934 17.3291L18.7615 16.8115" stroke="#ffffff" stroke-linecap="round"/>
+                        <path d="M3.30664 17.3291L5.23849 16.8115" stroke="#ffffff" stroke-linecap="round"/>
+                     '''
+
+            document["temperature-table"].clear()
+            table <= time_row
+            table <= temp_row
+
+            document["icon-in-graph"].clear()
+            document["icon-in-graph"] <= big_icon
+
+
+            table = document["temperature-table"]
+
+            table_width = table.offsetWidth
+            table_height = table.offsetHeight
+
+            table_svg = document["graph"].select("svg")[-1]
+
+            document[f"{table_svg.id}"].width = int(table_width + table_width * 0.25)
+            document[f"{table_svg.id}"].height = 100
+            document[f"{table_svg.id}"].style.background = "#2F70AF"
+            document[f"{table_svg.id}"].style.position  = "relative"
+            document[f"{table_svg.id}"].style.left  = "-70px"
+
+            document["panel"].style.left = 100
+
+
+            remove_unused_svg_elements(table_svg)
+
         def show_temperature(event):
-            print("temperatur")
+            create_graph("temp")
 
         def show_humidity(event):
-            print("humidity")
+            create_graph("hum")
 
         def show_pressure(event):
-            print("pressure")
+            create_graph("press")
 
+        create_graph("temp")
         document["btn-temp"].bind("click", show_temperature)
         document["btn-humidity"].bind("click", show_humidity)
         document["btn-pressure"].bind("click", show_pressure)
