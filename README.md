@@ -20,6 +20,10 @@
 
 ## Инструкция по запуску
 in progress...
+### brython
++ cd brython
++ python -m http.server 8080
+
 ## Использование
 in progress...
 
