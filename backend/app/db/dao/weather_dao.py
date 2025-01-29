@@ -2,11 +2,11 @@ from datetime import datetime
 from typing import List, Optional
 
 from fastapi import Depends
-from sqlalchemy import select
+from sqlalchemy import select, insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.dependencies import get_db_session
-from app.db.models.weather import WeatherData
+from app.db.models.weather import WeatherData, WeatherForecast
 
 
 class WeatherDAO:
@@ -49,9 +49,33 @@ class WeatherDAO:
         """
         Получить все записи погодных данных с пагинацией (limit/offset).
         """
-        query = select(WeatherData).limit(limit).offset(offset)
+        query = select(WeatherData).where(
+            WeatherData.timestamp < datetime.now()
+        ).order_by(WeatherData.timestamp).limit(
+            limit
+        ).offset(offset)
         rows = await self.session.execute(query)
         return list(rows.scalars().fetchall())
+
+    async def save_weather_forecast(
+        self,
+        forecast_time: datetime,
+        temperature: float,
+        humidity: float,
+        pressure: float,
+        created_at: datetime
+    ) -> None:
+        """
+        Сохранить прогноз в таблицу weather_forecast.
+        """
+        stmt = insert(WeatherForecast).values(
+            forecast_time=forecast_time,
+            temperature=temperature,
+            humidity=humidity,
+            pressure=pressure,
+            created_at=created_at
+        )
+        await self.session.execute(stmt)
 
     async def filter_weather_data(
         self,
@@ -65,3 +89,17 @@ class WeatherDAO:
             query = query.where(WeatherData.wind_direction == wind_direction)
         rows = await self.session.execute(query)
         return list(rows.scalars().fetchall())
+
+    async def get_latest_forecasts(self, limit: int = 24) -> List[WeatherForecast]:
+        """
+        Возвращает последние 'limit' прогнозов, отсортированные по времени прогноза
+        (forecast_time) в убывающем порядке.
+        """
+        query = (
+            select(WeatherForecast)
+            .order_by(WeatherForecast.forecast_time.desc())
+            .limit(limit)
+        )
+        rows = await self.session.execute(query)
+        forecasts = rows.scalars().all()
+        return list(forecasts)

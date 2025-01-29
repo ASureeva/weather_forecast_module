@@ -25,6 +25,10 @@ asyncpg = {version = "^0.30.0", extras = ["sa"]}
 aiofiles = "^24.1.0"
 httptools = "^0.6.4"
 pymongo = "^4.10.1"
+statsmodels = "^0.14.4"
+pandas = "^2.2.3"
+numpy = "2.0.2"
+tensorflow = "^2.18.0"
 
 
 [tool.poetry.group.dev.dependencies]
