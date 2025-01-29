@@ -1,7 +1,18 @@
+from machine import Pin, I2C
 import network
 import urequests
 import time
 import os
+import BME280
+
+
+i2c = I2C(scl=Pin(5), sda=Pin(4), freq=10000)
+devices = i2c.scan()
+
+if devices:
+    print("I2C devices found:", [hex(device) for device in devices])
+else:
+    print("No I2C devices found. Check wiring!")
 
 
 def load_env(filename=".env"):
@@ -50,14 +61,14 @@ def send_data(temp, hum, measure):
 
 
 def main():
-    ip = connect_wifi()
+    bme = BME280.BME280(i2c=i2c)
 
     while True:
         try:
 
-            measure = '12'
-            temp = '13'
-            hum = '14'
+            measure = bme.pressure
+            temp = bme.temperature
+            hum = bme.humidity
 
             print(f"Температура: {temp}°C, Влажность: {hum}%, sensor: {measure}")
 
