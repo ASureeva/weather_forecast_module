@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends
 from app.db.dao.weather_dao import WeatherDAO
 from app.db.models.weather import WeatherData
 from app.web.api.weather.schema import WeatherDataDTO, WeatherDataInputDTO
+from app.services.current_weather import get_current_weather
 
 router = APIRouter()
 
@@ -33,13 +34,16 @@ async def create_weather_data(
     timestamp_utc_naive = new_weather.timestamp.astimezone(
         datetime.timezone.utc,
     ).replace(tzinfo=None)
+
+    result = await get_current_weather()
+
     await weather_dao.create_weather_data(
         temperature=new_weather.temperature,
         humidity=new_weather.humidity,
         pressure=new_weather.pressure,
-        wind_speed=new_weather.wind_speed,
-        wind_direction=new_weather.wind_direction,
-        precipitation_type=new_weather.precipitation_type,
-        precipitation_intensity=new_weather.precipitation_intensity,
+        wind_speed=result['wind_speed'],
+        wind_direction=result['wind_direction'],
+        precipitation_type=result['precipitation_type'],
+        precipitation_intensity=result['precipitation_intensity'],
         timestamp=timestamp_utc_naive,
     )
