@@ -51,7 +51,7 @@ class WeatherDAO:
         """
         query = select(WeatherData).where(
             WeatherData.timestamp < datetime.now()
-        ).order_by(WeatherData.timestamp).limit(
+        ).order_by(WeatherData.timestamp.desc()).limit(
             limit
         ).offset(offset)
         rows = await self.session.execute(query)
