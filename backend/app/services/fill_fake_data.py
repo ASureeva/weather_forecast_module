@@ -46,11 +46,11 @@ async def fill_mock_weather_data(
         wind_direction = random.choice(["N", "NE", "E", "SE", "S", "SW", "W", "NW"])
 
         # Тип осадков: пусть иногда идёт дождь
-        precipitation_type = random.choice(["none", "rain", "none", "none"])
+        precipitation_type = random.choice(["none", "snow", "none", "none"])
 
         # Интенсивность осадков: если дождь, от 0.1 до 2.0, иначе 0
         precipitation_intensity = 0.0
-        if precipitation_type == "rain":
+        if precipitation_type == "snow":
             precipitation_intensity = round(random.uniform(0.1, 2.0), 2)
 
         record = WeatherData(
