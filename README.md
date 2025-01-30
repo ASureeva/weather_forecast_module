@@ -30,6 +30,7 @@ in progress...
 + mpremote connect COM3 cp main.py :
 + mpremote connect COM3 cp .env :  
 + mpremote connect COM3 cp BME280.py :
++ mpremote connect COM3 run main.py
 
 
 ## Использование
