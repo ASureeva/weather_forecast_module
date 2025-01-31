@@ -1,25 +1,24 @@
-# _weather_forecast_module_ - _Платформа мониторинга и прогнозирования погоды_
+# _weather_forecast_module_ 
+## Project Description
+The system consists of three main components:
++ Data acquisition module - a microcontroller with connected sensors collects data on temperature, humidity and atmospheric pressure.
++ Module for processing collected data and forecasting - a server part that receives data from sensors, stores it, analyzes and generates a forecast for the next 24 hours based on time series algorithms.
++ Web interface - User part that displays current data from sensors and a forecast for the next 24 hours.
 
-## Описание проекта
-Система состоит из трёх основных компонентов:
-+ Модуль сбора данных — микроконтроллер с подключенными датчиками собирает данные о температуре, влажности и атмосферном давлении.
-+ Модуль обработки собранных данных и прогнозирования — серверная часть, которая принимает данные с датчиков, сохраняет их, анализирует и генерирует прогноз на следующие 24 часа на основе алгоритмов временных рядов.
-+ Веб-интерфейс — Пользовательская часть, которая отображает текущие данные с датчиков и прогноз на следующие 24 часа.
 
-
-## Участники 
+## members 
 + Бровин Роман
 + Иванов Тимур
 + Суреева Анна
 
-## Технологии
+## Technologies
 + MicroPython
 + Python, Cython
 + HTML, CSS, Brython
   
 
-## Инструкция по запуску
-in progress...
+## Startup instructions
+
 ### brython
 + cd brython
 + python -m http.server 8080
@@ -32,10 +31,10 @@ in progress...
 + mpremote connect COM3 cp BME280.py :
 + mpremote connect COM3 run main.py
 
+### backend
++ cd backend
++ docker-compose up --build
 
-## Использование
-in progress...
-
-## Полезные ссылки
-+ [Яндекс Трекер](https://tracker.yandex.ru/pages/projects/1)
+## Links
++ [Yandex Tracker](https://tracker.yandex.ru/pages/projects/1)
 + [ТЗ](https://docs.google.com/document/d/1jqwq2AIuy9JbQfYT4eQSN86LeIlsva3Xh_djTVbTft4/edit?tab=t.0)
