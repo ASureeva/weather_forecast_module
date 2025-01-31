@@ -20,6 +20,19 @@
 
 ## Инструкция по запуску
 in progress...
+### brython
++ cd brython
++ python -m http.server 8080
+
+### microcontroller
++ esptool --port COM3 --baud 460800 write_flash --flash_size=detect 0 ESP8266_GENERIC-
+20241129-v1.24.1.bin
++ mpremote connect COM3 cp main.py :
++ mpremote connect COM3 cp .env :  
++ mpremote connect COM3 cp BME280.py :
++ mpremote connect COM3 run main.py
+
+
 ## Использование
 in progress...
 

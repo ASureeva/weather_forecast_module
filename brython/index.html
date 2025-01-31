@@ -1,0 +1,574 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/brython@3.9.2/brython.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/brython@3.9.2/brython_stdlib.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/andy31lewis/brycharts@715a65f/brycharts.brython.js"></script>
+<style>
+        body {
+            font-family: PT Sans;
+            background-color: #f4f4f4;
+            padding: 20px;
+            background: #FDF6F7;
+        }
+        .container {
+            margin-top: 20px;
+            padding: 15px 0;
+        }
+        .weather-info {
+            font-size: 15px;
+            text-align: left;
+            margin-top: 10px;
+            font-weight: regular;
+        }
+        .date-info {
+            text-align: left;
+            color: #00457E;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .btn {
+            font-size: 15px;
+            padding: 5px 10px;
+            margin: 5px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            background-color: #00457E;
+            color: white;
+        }
+        .btn:hover {
+            background-color: #2F70AF;
+        }
+        #canvas20_id0, #canvas20_id71, #canvas16_id108, #canvas16_id111, #canvas16_id205, #canvas16_id202, #canvas16_id304, #canvas16_id306  {
+            display: none !important;
+        }
+        #canvas20 {
+            height: 100px  !important;
+            background-color: #2F70AF !important;
+        }
+        polyline {
+            stroke: white !important;
+            stroke-width: 4 !important;
+
+        }
+        .container-0 {
+            background-color: #2F70AF;
+            border: none;
+            border-radius: 25px;
+            height: 200px;
+            width: 95%;
+            justify-content: center;
+            padding-top: 20px
+        }
+        .table-container {
+            margin-top: 20px;
+            width: 90%;
+            max-width: 800px;
+            text-align: center;
+        }
+        .graph table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .graph th {
+            padding-right: 10px;
+            color: white;
+            font-weight: normal;
+        }
+        .graph tr {
+            color: white;
+            font-weight: normal;
+        }
+
+        ::-webkit-scrollbar {
+            height: 10px;
+
+        }
+
+        ::-webkit-scrollbar-track {
+            background-color: white;
+            border: none;
+            border-radius: 25px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #E9B4BC;
+            border: none;
+            border-radius: 25px;
+        }
+        .fixed-sidebar {
+            position: absolute;
+            width: 10px;
+            background: #2F70AF;
+            padding: 0 15px;
+            text-align: center;
+        }
+        .weather-table {
+            width: 100%;
+            background-color: #FDF6F7;
+            text-align: left;
+            font-size: 16px;
+            margin-top: 20px;
+            border-collapse: separate !important;
+            border-spacing: 0 0.75em !important;
+        }
+
+        .weather-table th {
+            padding: 10px;
+            font-weight: bold;
+        }
+
+        .weather-table tr {
+            box-shadow: 12px 12px 2px 11px rgb(249 238 239 / 25%);
+        }
+
+        .weather-table td {
+            padding: 10px;
+        }
+
+        .weather-icon {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 5px;
+            width: 16px;
+            height: 16px;
+        }
+
+        .row-even {
+            background-color: white;
+        }
+
+        .row-odd {
+            background-color: #fceef0;
+        }
+    </style>
+</head>
+
+<body onload="brython()">
+    <div class="container">
+        <div id="date" class="date-info"></div>
+        <div class="weather-info">
+            <p>
+                <svg width="12" height="22" viewBox="0 0 9 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4.5 18C6.97826 18 9 16.2724 9 14.1548C9 12.9288 8.34783 11.8142 7.20652 11.0898V2.31269C7.20652 1.69969 6.91304 1.11455 6.42391 0.66873C5.90217 0.22291 5.21739 0 4.5 0C3 0 1.79348 1.03096 1.79348 2.31269V11.0898C0.684783 11.8142 0 12.9288 0 14.1548C0 16.2724 2.02174 18 4.5 18ZM2.80435 11.87L3.09783 11.7028V8.49845H4.5V7.3839H3.09783V6.88235H4.5V5.7678H3.09783V5.26625H4.5V4.1517H3.09783V3.65015H4.5V2.5356H3.09783V2.31269C3.09783 1.64396 3.71739 1.11455 4.5 1.11455C4.8587 1.11455 5.21739 1.22601 5.47826 1.47678C5.73913 1.69969 5.90217 2.00619 5.90217 2.31269V11.6749L6.19565 11.8421C7.1087 12.3437 7.66304 13.2074 7.66304 14.1269C7.66304 15.6316 6.22826 16.8576 4.46739 16.8576C2.70652 16.8576 1.27174 15.6316 1.27174 14.1269C1.30435 13.2074 1.8587 12.3715 2.80435 11.87Z" fill="black"/>
+                    <path d="M4.50001 16.4118C5.9674 16.4118 7.14131 15.4087 7.14131 14.1548C7.14131 13.096 6.29349 12.2322 5.15218 11.9814V9.72446H3.84783V11.9814C2.70653 12.2322 1.8587 13.1238 1.8587 14.1548C1.8587 15.4087 3.03262 16.4118 4.50001 16.4118ZM4.50001 13.0124C5.25001 13.0124 5.83696 13.5139 5.83696 14.1548C5.83696 14.7957 5.25001 15.2972 4.50001 15.2972C3.75001 15.2972 3.16305 14.7957 3.16305 14.1548C3.16305 13.5139 3.75001 13.0124 4.50001 13.0124Z" fill="black"/>
+                </svg>
+                <span style="vertical-align: top; margin-left: 10px" id="temperature">... </span></p>
+            <p>
+                <svg width="22" height="22" viewBox="4 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 21.5C16.1012 21.5 19.5 18.4372 19.5 14.5714C19.5 12.1555 18.2672 9.71249 16.8732 7.70906C15.4698 5.69214 13.8515 4.04821 12.9778 3.21778C12.4263 2.69364 11.5737 2.69364 11.0222 3.21779C10.1485 4.04821 8.53016 5.69214 7.1268 7.70906C5.73282 9.71249 4.5 12.1555 4.5 14.5714C4.5 18.4372 7.8988 21.5 12 21.5Z" stroke="#000000"/>
+                    <path d="M12 18C11.4747 18 10.9546 17.8965 10.4693 17.6955C9.98396 17.4945 9.54301 17.1999 9.17157 16.8284C8.80014 16.457 8.5055 16.016 8.30448 15.5307C8.10346 15.0454 8 14.5253 8 14" stroke="#000000" stroke-linecap="round"/>
+                </svg>
+                <span style="vertical-align: top" id="humidity">  ... </span></p>
+            <p>
+                <svg width="22" height="22" viewBox="2 2 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20.6933 17.3294C21.0506 15.9959 21.0964 14.5982 20.8271 13.2442C20.5577 11.8902 19.9806 10.6164 19.1402 9.52115C18.2998 8.42593 17.2187 7.53872 15.9806 6.92815C14.7425 6.31757 13.3805 6 12 6C10.6195 6 9.25752 6.31757 8.0194 6.92815C6.78128 7.53872 5.70021 8.42593 4.85982 9.52115C4.01943 10.6164 3.44225 11.8902 3.17293 13.2442C2.90361 14.5982 2.94937 15.9959 3.30667 17.3294" stroke="#000000" stroke-linecap="round"/>
+                    <path d="M12.7657 15.5823C13.2532 16.2916 12.9104 17.3738 12 17.9994C11.0897 18.625 9.95652 18.5571 9.46906 17.8477C8.94955 17.0917 7.15616 12.8409 6.06713 10.2114C5.86203 9.71621 6.4677 9.3 6.85648 9.669C8.92077 11.6283 12.2462 14.8263 12.7657 15.5823Z" stroke="#000000"/>
+                    <path d="M12 6V8" stroke="#000000" stroke-linecap="round"/>
+                    <path d="M5.63599 8.63574L7.0502 10.05" stroke="#000000" stroke-linecap="round"/>
+                    <path d="M18.364 8.63574L16.9498 10.05" stroke="#000000" stroke-linecap="round"/>
+                    <path d="M20.6934 17.3291L18.7615 16.8115" stroke="#000000" stroke-linecap="round"/>
+                    <path d="M3.30664 17.3291L5.23849 16.8115" stroke="#000000" stroke-linecap="round"/>
+                </svg>
+                <span style="vertical-align: top" id="pressure">...</span> </p>
+        </div>
+
+    </div>
+
+    <div class="date-info" style="margin-bottom: 40px" >Погода</div>
+
+    <div class="container-buttons">
+        <button class="btn" id="btn-temp">Температура</button>
+        <button class="btn" id="btn-humidity">Влажность</button>
+        <button class="btn" id="btn-pressure">Давление</button>
+    </div>
+
+    <div class="container-0">
+        <div class="fixed-sidebar" style="margin-top: 125px">
+            <svg fill="#ffffff" width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" d="M12,23 C5.92486775,23 1,18.0751322 1,12 C1,5.92486775 5.92486775,1 12,1 C18.0751322,1 23,5.92486775 23,12 C23,18.0751322 18.0751322,23 12,23 Z M12,21 C16.9705627,21 21,16.9705627 21,12 C21,7.02943725 16.9705627,3 12,3 C7.02943725,3 3,7.02943725 3,12 C3,16.9705627 7.02943725,21 12,21 Z M13,11 L17,11 L17,13 L11,13 L11,6 L13,6 L13,11 Z"/>
+            </svg>
+
+            <div id="icon-in-graph">
+                <svg width="12" height="22" viewBox="0 0 9 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4.5 18C6.97826 18 9 16.2724 9 14.1548C9 12.9288 8.34783 11.8142 7.20652 11.0898V2.31269C7.20652 1.69969 6.91304 1.11455 6.42391 0.66873C5.90217 0.22291 5.21739 0 4.5 0C3 0 1.79348 1.03096 1.79348 2.31269V11.0898C0.684783 11.8142 0 12.9288 0 14.1548C0 16.2724 2.02174 18 4.5 18ZM2.80435 11.87L3.09783 11.7028V8.49845H4.5V7.3839H3.09783V6.88235H4.5V5.7678H3.09783V5.26625H4.5V4.1517H3.09783V3.65015H4.5V2.5356H3.09783V2.31269C3.09783 1.64396 3.71739 1.11455 4.5 1.11455C4.8587 1.11455 5.21739 1.22601 5.47826 1.47678C5.73913 1.69969 5.90217 2.00619 5.90217 2.31269V11.6749L6.19565 11.8421C7.1087 12.3437 7.66304 13.2074 7.66304 14.1269C7.66304 15.6316 6.22826 16.8576 4.46739 16.8576C2.70652 16.8576 1.27174 15.6316 1.27174 14.1269C1.30435 13.2074 1.8587 12.3715 2.80435 11.87Z" fill="white"/>
+                    <path d="M4.50001 16.4118C5.9674 16.4118 7.14131 15.4087 7.14131 14.1548C7.14131 13.096 6.29349 12.2322 5.15218 11.9814V9.72446H3.84783V11.9814C2.70653 12.2322 1.8587 13.1238 1.8587 14.1548C1.8587 15.4087 3.03262 16.4118 4.50001 16.4118ZM4.50001 13.0124C5.25001 13.0124 5.83696 13.5139 5.83696 14.1548C5.83696 14.7957 5.25001 15.2972 4.50001 15.2972C3.75001 15.2972 3.16305 14.7957 3.16305 14.1548C3.16305 13.5139 3.75001 13.0124 4.50001 13.0124Z" fill="white"/>
+                </svg>
+            </div>
+        </div>
+        <div id="graph" style="overflow-x: scroll; margin: 0 15px 0 40px; ">
+            <div id="container-0"></div>
+
+        <div class="table-container" style="padding-bottom: 10px">
+            <table class="graph" id="temperature-table">
+            </table>
+        </div>
+        </div>
+    </div>
+
+
+
+    <table class="weather-table" id="weather-table">
+        <thead>
+            <tr>
+                <th>Время</th>
+                <th>Температура</th>
+                <th>Влажность</th>
+                <th>Давление</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+
+
+    <script type="text/python">
+        from browser import document, window, html, svg
+        import brycharts
+        import json
+        from browser import ajax, console
+
+        def format_time(iso_string):
+            try:
+                date_part, time_part = iso_string.split('T')
+                hours, minutes, _ = time_part.split(':')
+                return f"{hours}:{minutes}"
+            except ValueError:
+                return "Invalid Time"
+
+        def load_env(filename=".env"):
+            env = {}
+            try:
+                with open(filename) as f:
+                    for line in f:
+                        key, value = line.strip().split("=", 1)
+                        env[key] = value
+            except OSError:
+                print("Error: Environment file not found.")
+            return env
+
+        env = load_env()
+        weather_data_now = {}
+        weather_data_last_half= {}
+
+        times = []
+        temperatures = []
+        humidities = []
+        pressures = []
+
+        SERVER_URL = env["SERVER_URL"]
+
+        last_weather_update = None
+        last_time_update = None
+
+        def get_current_time():
+            """get current date"""
+            js_date = window.Date.new()
+            day = int(js_date.getDate())
+            month = int(js_date.getMonth())
+            year = int(js_date.getFullYear())
+            hours = int(js_date.getHours())
+            minutes = int(js_date.getMinutes())
+            weekday = int(js_date.getDay())
+
+            days = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"]
+            months = ["января", "февраля", "марта", "апреля", "мая", "июня",
+                      "июля", "августа", "сентября", "октября", "ноября", "декабря"]
+
+            return f"{days[weekday]}, {day} {months[month]} {year}, {hours:02}:{minutes:02}", js_date.getTime()
+
+        def update_datetime():
+            global last_time_update
+            current_time, timestamp = get_current_time()
+            if last_time_update is None or (timestamp - last_time_update) >= 60000:
+                document["date"].text = current_time
+                last_time_update = timestamp
+
+
+        def on_complete(req):
+            global weather_data_now
+            if req.status == 200:
+                data = json.loads(req.text)
+                if data:
+                    weather_data_now = data[0]
+
+                    update_weather_display()
+
+            else:
+                print(f"Error {req.status}: {req.text}")
+
+
+
+
+        # get info about temperatures, humidities, pressures
+        def get_weather_lists():
+            times = [0, 1, 2, 3, 4, 5, 6, 7, 8, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+            temperatures = [16, 18, 14, 14, 15, 18, 18, 19, 16, 15, 20, 16, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15]
+            humidities = [20, 34, 13, 14, 15, 18, 18, 19, 16, 15, 20, 16, 15, 15, 15, 45, 57, 18, 14, 15, 15, 15, 15, 15]
+            pressures = [23, 14, 13, 14, 15, 18, 18, 19, 16, 15, 20, 16, 15, 15, 15, 45, 57, 18, 14, 15, 15, 15, 15, 15]
+
+            return times, temperatures, humidities, pressures
+
+        #generate data for table
+        def generate_weather_data():
+
+            formatted_times = [f"{t:02}:00" for t in times]
+
+            weather_data = []
+            for i in range(len(times)):
+                weather_data.append({
+                    "time": formatted_times[i],
+                    "temp": f"{temperatures[i]}°",
+                    "humidity": f"{humidities[i]}%",
+                    "pressure": f"{pressures[i]} мм рт.ст."
+                })
+
+            return weather_data
+
+        update_datetime()
+        window.setInterval(update_datetime, 60000)
+
+
+        # SVG
+        clock_icon = '<svg  class="weather-icon" fill="#000000" width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"> <path fill-rule="evenodd" d="M12,23 C5.92486775,23 1,18.0751322 1,12 C1,5.92486775 5.92486775,1 12,1 C18.0751322,1 23,5.92486775 23,12 C23,18.0751322 18.0751322,23 12,23 Z M12,21 C16.9705627,21 21,16.9705627 21,12 C21,7.02943725 16.9705627,3 12,3 C7.02943725,3 3,7.02943725 3,12 C3,16.9705627 7.02943725,21 12,21 Z M13,11 L17,11 L17,13 L11,13 L11,6 L13,6 L13,11 Z"/> </svg>'
+        thermometer_icon = '<svg  class="weather-icon" width="12" height="22" viewBox="0 0 9 18" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M4.5 18C6.97826 18 9 16.2724 9 14.1548C9 12.9288 8.34783 11.8142 7.20652 11.0898V2.31269C7.20652 1.69969 6.91304 1.11455 6.42391 0.66873C5.90217 0.22291 5.21739 0 4.5 0C3 0 1.79348 1.03096 1.79348 2.31269V11.0898C0.684783 11.8142 0 12.9288 0 14.1548C0 16.2724 2.02174 18 4.5 18ZM2.80435 11.87L3.09783 11.7028V8.49845H4.5V7.3839H3.09783V6.88235H4.5V5.7678H3.09783V5.26625H4.5V4.1517H3.09783V3.65015H4.5V2.5356H3.09783V2.31269C3.09783 1.64396 3.71739 1.11455 4.5 1.11455C4.8587 1.11455 5.21739 1.22601 5.47826 1.47678C5.73913 1.69969 5.90217 2.00619 5.90217 2.31269V11.6749L6.19565 11.8421C7.1087 12.3437 7.66304 13.2074 7.66304 14.1269C7.66304 15.6316 6.22826 16.8576 4.46739 16.8576C2.70652 16.8576 1.27174 15.6316 1.27174 14.1269C1.30435 13.2074 1.8587 12.3715 2.80435 11.87Z" fill="black"/> <path d="M4.50001 16.4118C5.9674 16.4118 7.14131 15.4087 7.14131 14.1548C7.14131 13.096 6.29349 12.2322 5.15218 11.9814V9.72446H3.84783V11.9814C2.70653 12.2322 1.8587 13.1238 1.8587 14.1548C1.8587 15.4087 3.03262 16.4118 4.50001 16.4118ZM4.50001 13.0124C5.25001 13.0124 5.83696 13.5139 5.83696 14.1548C5.83696 14.7957 5.25001 15.2972 4.50001 15.2972C3.75001 15.2972 3.16305 14.7957 3.16305 14.1548C3.16305 13.5139 3.75001 13.0124 4.50001 13.0124Z" fill="black"/> </svg> '
+        humidity_icon = '  <svg  class="weather-icon" width="22" height="22" viewBox="4 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">  <path d="M12 21.5C16.1012 21.5 19.5 18.4372 19.5 14.5714C19.5 12.1555 18.2672 9.71249 16.8732 7.70906C15.4698 5.69214 13.8515 4.04821 12.9778 3.21778C12.4263 2.69364 11.5737 2.69364 11.0222 3.21779C10.1485 4.04821 8.53016 5.69214 7.1268 7.70906C5.73282 9.71249 4.5 12.1555 4.5 14.5714C4.5 18.4372 7.8988 21.5 12 21.5Z" stroke="#000000"/> <path d="M12 18C11.4747 18 10.9546 17.8965 10.4693 17.6955C9.98396 17.4945 9.54301 17.1999 9.17157 16.8284C8.80014 16.457 8.5055 16.016 8.30448 15.5307C8.10346 15.0454 8 14.5253 8 14" stroke="#000000" stroke-linecap="round"/> </svg>'
+        pressure_icon = '<svg  class="weather-icon" width="22" height="22" viewBox="2 2 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M20.6933 17.3294C21.0506 15.9959 21.0964 14.5982 20.8271 13.2442C20.5577 11.8902 19.9806 10.6164 19.1402 9.52115C18.2998 8.42593 17.2187 7.53872 15.9806 6.92815C14.7425 6.31757 13.3805 6 12 6C10.6195 6 9.25752 6.31757 8.0194 6.92815C6.78128 7.53872 5.70021 8.42593 4.85982 9.52115C4.01943 10.6164 3.44225 11.8902 3.17293 13.2442C2.90361 14.5982 2.94937 15.9959 3.30667 17.3294" stroke="#000000" stroke-linecap="round"/> <path d="M12.7657 15.5823C13.2532 16.2916 12.9104 17.3738 12 17.9994C11.0897 18.625 9.95652 18.5571 9.46906 17.8477C8.94955 17.0917 7.15616 12.8409 6.06713 10.2114C5.86203 9.71621 6.4677 9.3 6.85648 9.669C8.92077 11.6283 12.2462 14.8263 12.7657 15.5823Z" stroke="#000000"/> <path d="M12 6V8" stroke="#000000" stroke-linecap="round"/> <path d="M5.63599 8.63574L7.0502 10.05" stroke="#000000" stroke-linecap="round"/> <path d="M18.364 8.63574L16.9498 10.05" stroke="#000000" stroke-linecap="round"/> <path d="M20.6934 17.3291L18.7615 16.8115" stroke="#000000" stroke-linecap="round"/>  <path d="M3.30664 17.3291L5.23849 16.8115" stroke="#000000" stroke-linecap="round"/> </svg>'
+
+        # delete useless svg in graph
+        def remove_unused_svg_elements(svg):
+            ids_to_remove = ["id0", "id71", "id108", "id111", "id204", "id207", "id227", "id230"]
+
+            for suffix in ids_to_remove:
+                element_id = f"{svg.id}_{suffix}"
+                if element_id in document:
+                    document[element_id].remove()
+
+        # create graph
+        def create_graph(type):
+            variants = [" ", " ", "", ""]
+            r_vals =[2.5, 3.7, 3.6, 5.4]
+            generations = 24
+            local_data = []
+            if type == "temp":
+                local_data = temperatures
+            elif type == "hum":
+                local_data = humidities
+            elif type == "press":
+                local_data = pressures
+
+            sample_data = {}
+            for variant, r_val in zip(variants, r_vals):
+                sample_data[variant] = []
+                for gen in range(generations):
+                    sample_data[variant].append((gen, local_data[gen-1]))
+
+            pdd = brycharts.PairedDataDict("", "", sample_data)
+
+            title = f"Cov-19 Variants spread-Raw R-Value ({generations} Generations)"
+            document["container-0"].clear()
+            graph = brycharts.LineGraph(document["container-0"], pdd, title, height="70vh")
+
+
+            hours = [ ]
+            for element in times:
+                hours.append(element)
+
+            table = document["temperature-table"]
+
+            time_row = html.TR()
+            for hour in hours:
+                time_row <= html.TH(hour)
+            temp_row = html.TR()
+            big_icon = ""
+            for temp in local_data:
+                if type == "temp":
+                    temp_row <= html.TD(f"{temp}°C")
+
+                    big_icon = html.SVG(
+                        width="12", height="22", viewBox="0 0 9 18", fill="none",
+                        xmlns="http://www.w3.org/2000/svg"
+                    )
+
+                    big_icon.innerHTML = '''<path d=" M4.5 18C6.97826 18 9 16.2724 9 14.1548C9 12.9288 8.34783 11.8142 7.20652 11.0898V2.31269C7.20652 1.69969 6.91304 1.11455 6.42391 0.66873C5.90217 0.22291 5.21739 0 4.5 0C3 0 1.79348 1.03096 1.79348 2.31269V11.0898C0.684783 11.8142 0 12.9288 0 14.1548C0 16.2724 2.02174 18 4.5 18ZM2.80435 11.87L3.09783 11.7028V8.49845H4.5V7.3839H3.09783V6.88235H4.5V5.7678H3.09783V5.26625H4.5V4.1517H3.09783V3.65015H4.5V2.5356H3.09783V2.31269C3.09783 1.64396 3.71739 1.11455 4.5 1.11455C4.8587 1.11455 5.21739 1.22601 5.47826 1.47678C5.73913 1.69969 5.90217 2.00619 5.90217 2.31269V11.6749L6.19565 11.8421C7.1087 12.3437 7.66304 13.2074 7.66304 14.1269C7.66304 15.6316 6.22826 16.8576 4.46739 16.8576C2.70652 16.8576 1.27174 15.6316 1.27174 14.1269C1.30435 13.2074 1.8587 12.3715 2.80435 11.87Z" fill="white" />
+                        path d="M4.50001 16.4118C5.9674 16.4118 7.14131 15.4087 7.14131 14.1548C7.14131 13.096 6.29349 12.2322 5.15218 11.9814V9.72446H3.84783V11.9814C2.70653 12.2322 1.8587 13.1238 1.8587 14.1548C1.8587 15.4087 3.03262 16.4118 4.50001 16.4118ZM4.50001 13.0124C5.25001 13.0124 5.83696 13.5139 5.83696 14.1548C5.83696 14.7957 5.25001 15.2972 4.50001 15.2972C3.75001 15.2972 3.16305 14.7957 3.16305 14.1548C3.16305 13.5139 3.75001 13.0124 4.50001 13.0124Z" fill="white"/> '''
+
+                elif type == "hum":
+                     temp_row <= html.TD(f"{temp}%")
+                     big_icon = html.SVG(
+                         width="22", height="22", viewBox="4 0 22 22",
+                         fill="none", xmlns="http://www.w3.org/2000/svg"
+                     )
+
+                     big_icon.innerHTML = '''<path d="M12 21.5C16.1012 21.5 19.5 18.4372 19.5 14.5714C19.5 12.1555 18.2672 9.71249 16.8732 7.70906C15.4698 5.69214 13.8515 4.04821 12.9778 3.21778C12.4263 2.69364 11.5737 2.69364 11.0222 3.21779C10.1485 4.04821 8.53016 5.69214 7.1268 7.70906C5.73282 9.71249 4.5 12.1555 4.5 14.5714C4.5 18.4372 7.8988 21.5 12 21.5Z" stroke="#ffffff"/>
+                        <path d="M12 18C11.4747 18 10.9546 17.8965 10.4693 17.6955C9.98396 17.4945 9.54301 17.1999 9.17157 16.8284C8.80014 16.457 8.5055 16.016 8.30448 15.5307C8.10346 15.0454 8 14.5253 8 14" stroke="#ffffff" stroke-linecap="round"/> '''
+
+                elif type == "press":
+                     temp_row <= html.TD(f"{temp}")
+                     big_icon = html.SVG(
+                        width="22", height="22", viewBox="2 2 22 22", fill="none",
+                        xmlns="http://www.w3.org/2000/svg"
+                     )
+
+                     big_icon.innerHTML = '''<path d="M20.6933 17.3294C21.0506 15.9959 21.0964 14.5982 20.8271 13.2442C20.5577 11.8902 19.9806 10.6164 19.1402 9.52115C18.2998 8.42593 17.2187 7.53872 15.9806 6.92815C14.7425 6.31757 13.3805 6 12 6C10.6195 6 9.25752 6.31757 8.0194 6.92815C6.78128 7.53872 5.70021 8.42593 4.85982 9.52115C4.01943 10.6164 3.44225 11.8902 3.17293 13.2442C2.90361 14.5982 2.94937 15.9959 3.30667 17.3294" stroke="#ffffff" stroke-linecap="round"/>
+                        <path d="M12.7657 15.5823C13.2532 16.2916 12.9104 17.3738 12 17.9994C11.0897 18.625 9.95652 18.5571 9.46906 17.8477C8.94955 17.0917 7.15616 12.8409 6.06713 10.2114C5.86203 9.71621 6.4677 9.3 6.85648 9.669C8.92077 11.6283 12.2462 14.8263 12.7657 15.5823Z" stroke="#ffffff"/>
+                        <path d="M12 6V8" stroke="#ffffff" stroke-linecap="round"/>
+                        <path d="M5.63599 8.63574L7.0502 10.05" stroke="#ffffff" stroke-linecap="round"/>
+                        <path d="M18.364 8.63574L16.9498 10.05" stroke="#ffffff" stroke-linecap="round"/>
+                        <path d="M20.6934 17.3291L18.7615 16.8115" stroke="#ffffff" stroke-linecap="round"/>
+                        <path d="M3.30664 17.3291L5.23849 16.8115" stroke="#ffffff" stroke-linecap="round"/>
+                     '''
+
+            document["temperature-table"].clear()
+            table <= time_row
+            table <= temp_row
+
+            document["icon-in-graph"].clear()
+            document["icon-in-graph"] <= big_icon
+
+
+            table = document["temperature-table"]
+
+            table_width = table.offsetWidth
+            table_height = table.offsetHeight
+
+            table_svg = document["graph"].select("svg")[-1]
+
+            document[f"{table_svg.id}"].width = int(table_width + table_width * 0.25)
+            document[f"{table_svg.id}"].height = 100
+            document[f"{table_svg.id}"].style.background = "#2F70AF"
+            document[f"{table_svg.id}"].style.position  = "relative"
+            document[f"{table_svg.id}"].style.left  = "-70px"
+
+            document["panel"].style.left = 100
+
+
+            remove_unused_svg_elements(table_svg)
+
+        def show_temperature(event):
+            create_graph("temp")
+
+        def show_humidity(event):
+            create_graph("hum")
+
+        def show_pressure(event):
+            create_graph("press")
+
+        document["btn-temp"].bind("click", show_temperature)
+        document["btn-humidity"].bind("click", show_humidity)
+        document["btn-pressure"].bind("click", show_pressure)
+
+
+        weather_data = generate_weather_data()
+
+        def update_weather_table():
+            w_data = weather_data_last_half
+            table_body = document["weather-table"].getElementsByTagName("tbody")[0]
+
+            for i in range(len(times)):
+                row_class = "row-even"
+
+                row = html.TR(Class=row_class)
+                row <= html.TD(clock_icon + str(times[i]), escape=False)
+                row <= html.TD(thermometer_icon + str(temperatures[i]), escape=False)
+                row <= html.TD(humidity_icon + str(humidities[i]), escape=False)
+                row <= html.TD(pressure_icon + str(pressures[i]), escape=False)
+
+                table_body <= row
+
+        def update_weather():
+            """get current weather"""
+            url = f"{SERVER_URL}weather?limit=1&offset=0"
+            ajax.get(url, headers={'Content-Type': 'application/json'}, oncomplete=on_complete)
+
+        def update_weather_display():
+            """Оget current data from the server (temperature, pressure, humidity)"""
+            if weather_data_now:
+                temperature = weather_data_now["temperature"]
+                humidity = weather_data_now["humidity"]
+                pressure = weather_data_now["pressure"]
+
+                document["temperature"].text = f"{temperature}°C"
+                document["humidity"].text = f"{humidity}%"
+                document["pressure"].text = f"{pressure} мм рт.ст."
+
+
+
+        def update_weather_display_predict():
+            """Оget current data from the server (temperature, pressure, humidity)"""
+            global temperatures
+            global humidity
+            global pressure
+            global times
+
+
+            if weather_data_last_half:
+                for element in reversed(weather_data_last_half):
+                    times.append(int(element["timestamp"][11:13]))
+                    temperatures.append(element["temperature"])
+                    humidities.append(element["humidity"])
+                    pressures.append(element["pressure"])
+
+            create_graph("temp")
+            update_weather_table()
+
+        def on_complete_predict(req):
+            global weather_data_last_half
+            if req.status == 200:
+                data = json.loads(req.text)
+
+                if data:
+                    weather_data_last_half = data[:12]
+
+                update_weather_display_predict()
+
+            else:
+                print(f"Error {req.status}: {req.text}")
+
+        def update_weather_predict():
+            """get weather forecast"""
+            url = f"{SERVER_URL}forecast/latest/"
+            ajax.get(url, headers={'Content-Type': 'application/json'}, oncomplete=on_complete_predict)
+
+        def update_weather_display_Last_Half():
+            """get current data from the server (temperature, pressure, humidity)"""
+            global temperatures
+            global humidity
+            global pressure
+            global times
+            if weather_data_last_half:
+                for element in reversed(weather_data_last_half):
+                    times.append(int(element["timestamp"][11:13]))
+                    temperatures.append(element["temperature"])
+                    humidities.append(element["humidity"])
+                    pressures.append(element["pressure"])
+
+        def on_complete_Last_Half(req):
+            global weather_data_last_half
+            if req.status == 200:
+                data = json.loads(req.text)
+                if data:
+                    weather_data_last_half = data
+                    update_weather_display_Last_Half()
+
+                    window.setTimeout(update_weather_predict, 2000)
+
+
+            else:
+                print(f"Error {req.status}: {req.text}")
+
+        def update_weather_Last_Half():
+            """get weather history"""
+            url = f"{SERVER_URL}weather?limit=12&offset=0"
+            ajax.get(url, headers={'Content-Type': 'application/json'}, oncomplete=on_complete_Last_Half)
+
+        window.setTimeout(update_weather, 2000)
+        window.setTimeout(update_weather_Last_Half, 2000)
+
+    </script>
+
+</body>
+</html>
