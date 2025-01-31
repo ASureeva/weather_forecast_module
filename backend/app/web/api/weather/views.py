@@ -31,9 +31,18 @@ async def create_weather_data(
     """
     Создать новую запись о погоде в БД.
     """
-    timestamp_utc_naive = new_weather.timestamp.astimezone(
-        datetime.timezone.utc,
-    ).replace(tzinfo=None)
+
+    MOSCOW_TZ = datetime.timezone(datetime.timedelta(hours=0))
+
+    timestamp_moscow = new_weather.timestamp.astimezone(MOSCOW_TZ)
+
+    if timestamp_moscow.minute < 30:
+        timestamp_moscow = timestamp_moscow.replace(minute=0, second=0, microsecond=0)
+    else:
+        timestamp_moscow = (timestamp_moscow + datetime.timedelta(hours=1)).replace(
+            minute=0, second=0, microsecond=0)
+
+    timestamp_moscow_naive = timestamp_moscow.replace(tzinfo=None)
 
     result = await get_current_weather()
 
@@ -45,5 +54,5 @@ async def create_weather_data(
         wind_direction=result['wind_direction'],
         precipitation_type=result['precipitation_type'],
         precipitation_intensity=result['precipitation_intensity'],
-        timestamp=timestamp_utc_naive,
+        timestamp=timestamp_moscow_naive,
     )

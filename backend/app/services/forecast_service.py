@@ -50,11 +50,20 @@ class ForecastService:
         now = datetime.utcnow()
         for i in range(steps):
             forecast_time = now + timedelta(hours=i + 1)
+
+            if forecast_time.minute < 30:
+                timestamp = forecast_time.replace(minute=0, second=0,
+                                                            microsecond=0)
+            else:
+                timestamp = (
+                        forecast_time + timedelta(hours=1)).replace(
+                    minute=0, second=0, microsecond=0)
             await self.weather_dao.save_weather_forecast(
                 forecast_time=forecast_time,
-                temperature=float(forecast_vals_temp[i]),
-                humidity=float(forecast_vals_hum[i]),
-                pressure=float(forecast_vals_pres[i]),
+                timestamp=timestamp,
+                temperature=float(round(forecast_vals_temp[i], 1)),
+                humidity=float(round(forecast_vals_hum[i], 1)),
+                pressure=float(round(forecast_vals_pres[i], 1)),
                 created_at=now,
             )
 

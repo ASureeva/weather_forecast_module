@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Optional
 
 from fastapi import Depends
@@ -43,14 +43,29 @@ class WeatherDAO:
             precipitation_intensity=precipitation_intensity,
             timestamp=timestamp,
         )
-        self.session.add(new_record)
+        existing_record = await self.session.execute(
+            select(WeatherData).where(WeatherData.timestamp == timestamp))
+        existing_record = existing_record.scalars().first()
+
+        if existing_record:
+            existing_record.temperature = temperature
+            existing_record.humidity = humidity
+            existing_record.pressure = pressure
+            existing_record.wind_speed = wind_speed
+            existing_record.wind_direction = wind_direction
+            existing_record.precipitation_type = precipitation_type
+            existing_record.precipitation_intensity = precipitation_intensity
+        else:
+            self.session.add(new_record)
+
+        await self.session.commit()
 
     async def get_all_weather_data(self, limit: int, offset: int) -> List[WeatherData]:
         """
         Получить все записи погодных данных с пагинацией (limit/offset).
         """
         query = select(WeatherData).where(
-            WeatherData.timestamp < datetime.now()
+            WeatherData.timestamp < datetime.now() + timedelta(hours=3)
         ).order_by(WeatherData.timestamp.desc()).limit(
             limit
         ).offset(offset)
@@ -60,6 +75,7 @@ class WeatherDAO:
     async def save_weather_forecast(
         self,
         forecast_time: datetime,
+        timestamp: datetime,
         temperature: float,
         humidity: float,
         pressure: float,
@@ -70,6 +86,7 @@ class WeatherDAO:
         """
         stmt = insert(WeatherForecast).values(
             forecast_time=forecast_time,
+            timestamp=timestamp,
             temperature=temperature,
             humidity=humidity,
             pressure=pressure,
@@ -97,7 +114,7 @@ class WeatherDAO:
         """
         query = (
             select(WeatherForecast)
-            .order_by(WeatherForecast.forecast_time.desc())
+            .order_by(WeatherForecast.id.desc())
             .limit(limit)
         )
         rows = await self.session.execute(query)

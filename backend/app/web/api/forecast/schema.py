@@ -9,6 +9,7 @@ class WeatherForecastDTO(BaseModel):
     """
     id: int
     forecast_time: datetime
+    timestamp: datetime
     temperature: Optional[float] = None
     humidity: Optional[float] = None
     pressure: Optional[float] = None
