@@ -41,7 +41,7 @@
         .btn:hover {
             background-color: #2F70AF;
         }
-        #canvas20_id0, #canvas20_id71, #canvas16_id108, #canvas16_id111 {
+        #canvas20_id0, #canvas20_id71, #canvas16_id108, #canvas16_id111, #canvas16_id205, #canvas16_id202, #canvas16_id304, #canvas16_id306  {
             display: none !important;
         }
         #canvas20 {
@@ -177,7 +177,7 @@
 
     </div>
 
-    <div class="date-info" style="margin-bottom: 10px" >Прогноз</div>
+    <div class="date-info" style="margin-bottom: 40px" >Погода</div>
 
     <div class="container-buttons">
         <button class="btn" id="btn-temp">Температура</button>
@@ -228,6 +228,38 @@
     <script type="text/python">
         from browser import document, window, html, svg
         import brycharts
+        import json
+        from browser import ajax, console
+
+        def format_time(iso_string):
+            try:
+                date_part, time_part = iso_string.split('T')
+                hours, minutes, _ = time_part.split(':')
+                return f"{hours}:{minutes}"
+            except ValueError:
+                return "Invalid Time"
+
+        def load_env(filename=".env"):
+            env = {}
+            try:
+                with open(filename) as f:
+                    for line in f:
+                        key, value = line.strip().split("=", 1)
+                        env[key] = value
+            except OSError:
+                print("Error: Environment file not found.")
+            return env
+
+        env = load_env()
+        weather_data_now = {}
+        weather_data_last_half= {}
+
+        times = []
+        temperatures = []
+        humidities = []
+        pressures = []
+
+        SERVER_URL = env["SERVER_URL"]
 
         last_weather_update = None
         last_time_update = None
@@ -255,16 +287,21 @@
                 document["date"].text = current_time
                 last_time_update = timestamp
 
-        def update_weather():
-            """get current data from the server (temperature, pressure, humidity)"""
-            """TO DO request"""
-            temperature = "22°C"
-            humidity = "55%"
-            pressure = "748 мм рт. ст."
 
-            document["temperature"].text = temperature
-            document["humidity"].text = humidity
-            document["pressure"].text = pressure
+        def on_complete(req):
+            global weather_data_now
+            if req.status == 200:
+                data = json.loads(req.text)
+                if data:
+                    weather_data_now = data[0]
+
+                    update_weather_display()
+
+            else:
+                print(f"Error {req.status}: {req.text}")
+
+
+
 
         # get info about temperatures, humidities, pressures
         def get_weather_lists():
@@ -278,7 +315,6 @@
         #generate data for table
         def generate_weather_data():
 
-            times, temperatures, humidities, pressures = get_weather_lists()
             formatted_times = [f"{t:02}:00" for t in times]
 
             weather_data = []
@@ -295,7 +331,6 @@
         update_datetime()
         window.setInterval(update_datetime, 60000)
 
-        window.setTimeout(update_weather, 2000)
 
         # SVG
         clock_icon = '<svg  class="weather-icon" fill="#000000" width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"> <path fill-rule="evenodd" d="M12,23 C5.92486775,23 1,18.0751322 1,12 C1,5.92486775 5.92486775,1 12,1 C18.0751322,1 23,5.92486775 23,12 C23,18.0751322 18.0751322,23 12,23 Z M12,21 C16.9705627,21 21,16.9705627 21,12 C21,7.02943725 16.9705627,3 12,3 C7.02943725,3 3,7.02943725 3,12 C3,16.9705627 7.02943725,21 12,21 Z M13,11 L17,11 L17,13 L11,13 L11,6 L13,6 L13,11 Z"/> </svg>'
@@ -317,19 +352,19 @@
             variants = [" ", " ", "", ""]
             r_vals =[2.5, 3.7, 3.6, 5.4]
             generations = 24
-            temperatures = []
+            local_data = []
             if type == "temp":
-                temperatures = [16, 18, 14, 14, 15, 18, 18, 19, 16, 15, 20, 16, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15]
+                local_data = temperatures
             elif type == "hum":
-                temperatures = [20, 34, 13, 14, 15, 18, 18, 19, 16, 15, 20, 16, 15, 15, 15, 45, 57, 18, 14, 15, 15, 15, 15, 15]
+                local_data = humidities
             elif type == "press":
-                temperatures = [23, 14, 13, 14, 15, 18, 18, 19, 16, 15, 20, 16, 15, 15, 15, 45, 57, 18, 14, 15, 15, 15, 15, 15]
+                local_data = pressures
 
             sample_data = {}
             for variant, r_val in zip(variants, r_vals):
                 sample_data[variant] = []
                 for gen in range(generations):
-                    sample_data[variant].append((gen, temperatures[gen-1]))
+                    sample_data[variant].append((gen, local_data[gen-1]))
 
             pdd = brycharts.PairedDataDict("", "", sample_data)
 
@@ -338,8 +373,9 @@
             graph = brycharts.LineGraph(document["container-0"], pdd, title, height="70vh")
 
 
-            hours = [f"{h:02}:00" for h in range(24)]
-
+            hours = [ ]
+            for element in times:
+                hours.append(element)
 
             table = document["temperature-table"]
 
@@ -348,7 +384,7 @@
                 time_row <= html.TH(hour)
             temp_row = html.TR()
             big_icon = ""
-            for temp in temperatures:
+            for temp in local_data:
                 if type == "temp":
                     temp_row <= html.TD(f"{temp}°C")
 
@@ -421,7 +457,6 @@
         def show_pressure(event):
             create_graph("press")
 
-        create_graph("temp")
         document["btn-temp"].bind("click", show_temperature)
         document["btn-humidity"].bind("click", show_humidity)
         document["btn-pressure"].bind("click", show_pressure)
@@ -436,14 +471,104 @@
                 row_class = "row-even"
 
                 row = html.TR(Class=row_class)
-                row <= html.TD(clock_icon + data["time"], escape=False)
-                row <= html.TD(thermometer_icon + data["temp"], escape=False)
-                row <= html.TD(humidity_icon + data["humidity"], escape=False)
-                row <= html.TD(pressure_icon + data["pressure"], escape=False)
+                row <= html.TD(clock_icon + format_time(data["timestamp"]), escape=False)
+                row <= html.TD(thermometer_icon + str(data["temperature"]), escape=False)
+                row <= html.TD(humidity_icon + str(data["humidity"]), escape=False)
+                row <= html.TD(pressure_icon + str(data["pressure"]), escape=False)
 
                 table_body <= row
 
-        update_weather_table(weather_data)
+
+        def update_weather():
+            """get current weather"""
+            url = f"{SERVER_URL}weather?limit=1&offset=0"
+            ajax.get(url, headers={'Content-Type': 'application/json'}, oncomplete=on_complete)
+
+        def update_weather_display():
+            """Оget current data from the server (temperature, pressure, humidity)"""
+            if weather_data_now:
+                temperature = weather_data_now["temperature"]
+                humidity = weather_data_now["humidity"]
+                pressure = weather_data_now["pressure"]
+
+                document["temperature"].text = f"{temperature}°C"
+                document["humidity"].text = f"{humidity}%"
+                document["pressure"].text = f"{pressure} мм рт.ст."
+
+
+
+        def update_weather_display_predict():
+            """Оget current data from the server (temperature, pressure, humidity)"""
+            global temperatures
+            global humidity
+            global pressure
+            global times
+
+
+            if weather_data_last_half:
+                for element in weather_data_last_half:
+                    times.append(int(element["timestamp"][11:13]))
+                    temperatures.append(element["temperature"])
+                    humidities.append(element["humidity"])
+                    pressures.append(element["pressure"])
+
+            create_graph("temp")
+            update_weather_table(weather_data_last_half)
+
+        def on_complete_predict(req):
+            global weather_data_last_half
+            if req.status == 200:
+                data = json.loads(req.text)
+
+                if data:
+                    weather_data_last_half = data[:12]
+
+                weather_data_last_half =  [{'id': 23039, 'temperature': 14.5, 'humidity': 67.68, 'pressure': 1017.52, 'wind_speed': 2.37, 'wind_direction': 'NW', 'precipitation_type': 'none', 'precipitation_intensity': 0, 'timestamp': '2025-01-30T22:00:00'}, {'id': 22319, 'temperature': 14.5, 'humidity': 67.67, 'pressure': 1016.15, 'wind_speed': 3.16, 'wind_direction': 'NW', 'precipitation_type': 'none', 'precipitation_intensity': 0, 'timestamp': '2025-01-30T22:00:00'}, {'id': 21599, 'temperature': 14.5, 'humidity': 78.41, 'pressure': 1010.42, 'wind_speed': 3.91, 'wind_direction': 'W', 'precipitation_type': 'none', 'precipitation_intensity': 0, 'timestamp': '2025-01-30T22:00:00'}, {'id': 20879, 'temperature': 14.5, 'humidity': 49.43, 'pressure': 1016.35, 'wind_speed': 3.07, 'wind_direction': 'N', 'precipitation_type': 'snow', 'precipitation_intensity': 1.82, 'timestamp': '2025-01-30T22:00:00'}, {'id': 719, 'temperature': 14.5, 'humidity': 73.5, 'pressure': 1018.35, 'wind_speed': 4.2, 'wind_direction': 'W', 'precipitation_type': 'none', 'precipitation_intensity': 0, 'timestamp': '2025-01-30T22:00:00'}, {'id': 1439, 'temperature': 14.5, 'humidity': 59.98, 'pressure': 1012.48, 'wind_speed': 4.77, 'wind_direction': 'NE', 'precipitation_type': 'none', 'precipitation_intensity': 0, 'timestamp': '2025-01-30T22:00:00'}, {'id': 2159, 'temperature': 14.5, 'humidity': 49.72, 'pressure': 1018.48, 'wind_speed': 4.76, 'wind_direction': 'S', 'precipitation_type': 'none', 'precipitation_intensity': 0, 'timestamp': '2025-01-30T22:00:00'}, {'id': 2879, 'temperature': 14.5, 'humidity': 70.15, 'pressure': 1017.94, 'wind_speed': 4.1, 'wind_direction': 'E', 'precipitation_type': 'none', 'precipitation_intensity': 0, 'timestamp': '2025-01-30T22:00:00'}, {'id': 3599, 'temperature': 14.5, 'humidity': 74.36, 'pressure': 1014.63, 'wind_speed': 3.68, 'wind_direction': 'SW', 'precipitation_type': 'none', 'precipitation_intensity': 0, 'timestamp': '2025-01-30T22:00:00'}, {'id': 4319, 'temperature': 14.5, 'humidity': 70.16, 'pressure': 1017.48, 'wind_speed': 3.55, 'wind_direction': 'NE', 'precipitation_type': 'snow', 'precipitation_intensity': 0.95, 'timestamp': '2025-01-30T22:00:00'}, {'id': 5039, 'temperature': 14.5, 'humidity': 52.72, 'pressure': 1013.51, 'wind_speed': 0.88, 'wind_direction': 'NW', 'precipitation_type': 'none', 'precipitation_intensity': 0, 'timestamp': '2025-01-30T22:00:00'}, {'id': 5759, 'temperature': 14.5, 'humidity': 67.63, 'pressure': 1013.87, 'wind_speed': 1.55, 'wind_direction': 'S', 'precipitation_type': 'none', 'precipitation_intensity': 0, 'timestamp': '2025-01-30T22:00:00'}]
+                update_weather_display_predict()
+
+            else:
+                print(f"Error {req.status}: {req.text}")
+
+        def update_weather_predict():
+            """get weather forecast"""
+            url = f"{SERVER_URL}forecast/latest/"
+            ajax.get(url, headers={'Content-Type': 'application/json'}, oncomplete=on_complete_predict)
+
+        def update_weather_display_Last_Half():
+            """get current data from the server (temperature, pressure, humidity)"""
+            global temperatures
+            global humidity
+            global pressure
+            global times
+            if weather_data_last_half:
+                for element in weather_data_last_half:
+                    times.append(int(element["timestamp"][11:13]))
+                    temperatures.append(element["temperature"])
+                    humidities.append(element["humidity"])
+                    pressures.append(element["pressure"])
+
+        def on_complete_Last_Half(req):
+            global weather_data_last_half
+            if req.status == 200:
+                data = json.loads(req.text)
+                if data:
+                    weather_data_last_half = data
+                    update_weather_display_Last_Half()
+
+                    window.setTimeout(update_weather_predict, 2000)
+
+
+            else:
+                print(f"Error {req.status}: {req.text}")
+
+        def update_weather_Last_Half():
+            """get weather history"""
+            url = f"{SERVER_URL}weather?limit=12&offset=0"
+            ajax.get(url, headers={'Content-Type': 'application/json'}, oncomplete=on_complete_Last_Half)
+
+        window.setTimeout(update_weather, 2000)
+        window.setTimeout(update_weather_Last_Half, 2000)
+        window.setTimeout(update_weather_predict, 2000)
 
     </script>
 
