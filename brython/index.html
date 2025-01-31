@@ -464,20 +464,20 @@
 
         weather_data = generate_weather_data()
 
-        def update_weather_table(w_data):
+        def update_weather_table():
+            w_data = weather_data_last_half
             table_body = document["weather-table"].getElementsByTagName("tbody")[0]
 
-            for i, data in enumerate(w_data):
+            for i in range(len(times)):
                 row_class = "row-even"
 
                 row = html.TR(Class=row_class)
-                row <= html.TD(clock_icon + format_time(data["timestamp"]), escape=False)
-                row <= html.TD(thermometer_icon + str(data["temperature"]), escape=False)
-                row <= html.TD(humidity_icon + str(data["humidity"]), escape=False)
-                row <= html.TD(pressure_icon + str(data["pressure"]), escape=False)
+                row <= html.TD(clock_icon + str(times[i]), escape=False)
+                row <= html.TD(thermometer_icon + str(temperatures[i]), escape=False)
+                row <= html.TD(humidity_icon + str(humidities[i]), escape=False)
+                row <= html.TD(pressure_icon + str(pressures[i]), escape=False)
 
                 table_body <= row
-
 
         def update_weather():
             """get current weather"""
@@ -506,14 +506,14 @@
 
 
             if weather_data_last_half:
-                for element in weather_data_last_half:
+                for element in reversed(weather_data_last_half):
                     times.append(int(element["timestamp"][11:13]))
                     temperatures.append(element["temperature"])
                     humidities.append(element["humidity"])
                     pressures.append(element["pressure"])
 
             create_graph("temp")
-            update_weather_table(weather_data_last_half)
+            update_weather_table()
 
         def on_complete_predict(req):
             global weather_data_last_half
@@ -523,7 +523,6 @@
                 if data:
                     weather_data_last_half = data[:12]
 
-                weather_data_last_half =  [{'id': 23039, 'temperature': 14.5, 'humidity': 67.68, 'pressure': 1017.52, 'wind_speed': 2.37, 'wind_direction': 'NW', 'precipitation_type': 'none', 'precipitation_intensity': 0, 'timestamp': '2025-01-30T22:00:00'}, {'id': 22319, 'temperature': 14.5, 'humidity': 67.67, 'pressure': 1016.15, 'wind_speed': 3.16, 'wind_direction': 'NW', 'precipitation_type': 'none', 'precipitation_intensity': 0, 'timestamp': '2025-01-30T22:00:00'}, {'id': 21599, 'temperature': 14.5, 'humidity': 78.41, 'pressure': 1010.42, 'wind_speed': 3.91, 'wind_direction': 'W', 'precipitation_type': 'none', 'precipitation_intensity': 0, 'timestamp': '2025-01-30T22:00:00'}, {'id': 20879, 'temperature': 14.5, 'humidity': 49.43, 'pressure': 1016.35, 'wind_speed': 3.07, 'wind_direction': 'N', 'precipitation_type': 'snow', 'precipitation_intensity': 1.82, 'timestamp': '2025-01-30T22:00:00'}, {'id': 719, 'temperature': 14.5, 'humidity': 73.5, 'pressure': 1018.35, 'wind_speed': 4.2, 'wind_direction': 'W', 'precipitation_type': 'none', 'precipitation_intensity': 0, 'timestamp': '2025-01-30T22:00:00'}, {'id': 1439, 'temperature': 14.5, 'humidity': 59.98, 'pressure': 1012.48, 'wind_speed': 4.77, 'wind_direction': 'NE', 'precipitation_type': 'none', 'precipitation_intensity': 0, 'timestamp': '2025-01-30T22:00:00'}, {'id': 2159, 'temperature': 14.5, 'humidity': 49.72, 'pressure': 1018.48, 'wind_speed': 4.76, 'wind_direction': 'S', 'precipitation_type': 'none', 'precipitation_intensity': 0, 'timestamp': '2025-01-30T22:00:00'}, {'id': 2879, 'temperature': 14.5, 'humidity': 70.15, 'pressure': 1017.94, 'wind_speed': 4.1, 'wind_direction': 'E', 'precipitation_type': 'none', 'precipitation_intensity': 0, 'timestamp': '2025-01-30T22:00:00'}, {'id': 3599, 'temperature': 14.5, 'humidity': 74.36, 'pressure': 1014.63, 'wind_speed': 3.68, 'wind_direction': 'SW', 'precipitation_type': 'none', 'precipitation_intensity': 0, 'timestamp': '2025-01-30T22:00:00'}, {'id': 4319, 'temperature': 14.5, 'humidity': 70.16, 'pressure': 1017.48, 'wind_speed': 3.55, 'wind_direction': 'NE', 'precipitation_type': 'snow', 'precipitation_intensity': 0.95, 'timestamp': '2025-01-30T22:00:00'}, {'id': 5039, 'temperature': 14.5, 'humidity': 52.72, 'pressure': 1013.51, 'wind_speed': 0.88, 'wind_direction': 'NW', 'precipitation_type': 'none', 'precipitation_intensity': 0, 'timestamp': '2025-01-30T22:00:00'}, {'id': 5759, 'temperature': 14.5, 'humidity': 67.63, 'pressure': 1013.87, 'wind_speed': 1.55, 'wind_direction': 'S', 'precipitation_type': 'none', 'precipitation_intensity': 0, 'timestamp': '2025-01-30T22:00:00'}]
                 update_weather_display_predict()
 
             else:
@@ -541,7 +540,7 @@
             global pressure
             global times
             if weather_data_last_half:
-                for element in weather_data_last_half:
+                for element in reversed(weather_data_last_half):
                     times.append(int(element["timestamp"][11:13]))
                     temperatures.append(element["temperature"])
                     humidities.append(element["humidity"])
@@ -568,7 +567,6 @@
 
         window.setTimeout(update_weather, 2000)
         window.setTimeout(update_weather_Last_Half, 2000)
-        window.setTimeout(update_weather_predict, 2000)
 
     </script>
 
