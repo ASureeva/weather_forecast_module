@@ -49,6 +49,11 @@ class WeatherForecast(Base):
         index=True,
     )
     temperature: Mapped[float] = mapped_column(Float, nullable=True)
+    timestamp: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False,
+        index=True,
+    )
     humidity: Mapped[float] = mapped_column(Float, nullable=True)
     pressure: Mapped[float] = mapped_column(Float, nullable=True)
     wind_speed: Mapped[float] = mapped_column(Float, nullable=True)
